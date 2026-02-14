@@ -64,7 +64,14 @@ func _get_export_options():
         {
             "name": "stage",
             "type": TYPE_BOOL,
-            "default_value": false
+            "default_value": false,
+			"update_visibility": true
+        },
+        {
+            "name": "stage_from",
+            "type": TYPE_STRING,
+            "default_value": "res://",
+			"hint": PROPERTY_HINT_DIR,
         },
 
         {
@@ -105,6 +112,12 @@ func _has_valid_project_configuration(preset: EditorExportPreset):
 
     var valid := true
 
+    if preset.get_or_env("stage", ""):
+        var stage_from := NovaTools.normalize_path_absolute(preset.get_or_env("stage_from", ""))
+        if not DirAccess.dir_exists_absolute(stage_from):
+            add_config_error("Staging path '%s' does not exist." % [stage_from])
+            valid = false
+
     if preset.get_or_env("push", ""):
         if not preset.get_or_env("remote", "") in NovaTools.callv_vcs_method("get_remotes"):
             add_config_error("Remote does not exist.")
@@ -122,7 +135,7 @@ func _has_valid_project_configuration(preset: EditorExportPreset):
 
 func _get_export_option_warning(preset: EditorExportPreset, option: StringName) -> String:
     var warnings := PackedStringArray()
-    var vcs_active := not NovaTools.vcs_active()
+    var vcs_active := NovaTools.vcs_active()
     if not vcs_active:
         warnings.append("VCS interface in not initalized, this export plugin will do nothing.")
     match(option):
@@ -132,9 +145,9 @@ func _get_export_option_warning(preset: EditorExportPreset, option: StringName) 
                     preset.get_or_env("stage", "")
                     ):
                 warnings.append("No VCS actions are enabled. Nothing will happen to VCS at export.")
-    return "\n".join(warnings)
+    return " ".join(warnings)
 
-func _export_hook(preset: EditorExportPreset, path: String):
+func _export_hook(preset:EditorExportPreset, _path:String):
     if preset.get_or_env("only_if_changed", "") and not NovaTools.vcs_is_something_changed():
         return OK
 
@@ -152,7 +165,8 @@ func _export_hook(preset: EditorExportPreset, path: String):
         return ERR_CANT_OPEN
 
     if preset.get_or_env("stage", ""):
-        for file in NovaTools.get_children_files_recursive(NovaTools.normalize_path_absolute(path)):
+        var stage_from := NovaTools.normalize_path_absolute(preset.get_or_env("stage_from", ""))
+        for file in NovaTools.get_children_files_recursive(stage_from):
             NovaTools.callv_vcs_method("stage_file", [file])
 
     if preset.get_or_env("commit", ""):
