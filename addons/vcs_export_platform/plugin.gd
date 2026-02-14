@@ -20,10 +20,12 @@ func _ensure_script_docs():
         edit.update_docs_from_script(scr)
 
 func _get_plugin_name():
-	return PLUGIN_NAME
+    return PLUGIN_NAME
 
 func _get_plugin_icon():
-	return NovaTools.get_editor_icon_named(VCSEditorExportPlatform.EDITOR_ICON_NAME, Vector2i.ONE * 16)
+    return NovaTools.get_editor_icon_named(VCSEditorExportPlatform.EDITOR_ICON_NAME,
+                                            Vector2i.ONE * 16
+                                            )
 
 func _enter_tree():
     _ensure_script_docs()
@@ -35,17 +37,17 @@ func _enable_plugin():
     _try_init_platform()
 
 func _disable_plugin():
-	_try_deinit_platform()
+    _try_deinit_platform()
 
 func _exit_tree():
-	_try_deinit_platform()
+    _try_deinit_platform()
 
 func _try_init_platform():
-	if _export_platform_ref == null:
-		_export_platform_ref = VCSEditorExportPlatform.new()
-		add_export_platform(_export_platform_ref)
+    if _export_platform_ref == null:
+        _export_platform_ref = VCSEditorExportPlatform.new()
+        add_export_platform(_export_platform_ref)
 
 func _try_deinit_platform():
-	if _export_platform_ref != null:
-		remove_export_platform(_export_platform_ref)
-		_export_platform_ref = null
+    if _export_platform_ref != null:
+        remove_export_platform(_export_platform_ref)
+        _export_platform_ref = null
