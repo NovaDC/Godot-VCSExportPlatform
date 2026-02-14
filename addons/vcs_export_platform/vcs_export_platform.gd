@@ -145,7 +145,7 @@ func _export_hook(preset: EditorExportPreset, path: String):
 		return ERR_CANT_OPEN
 
 	if preset.get_or_env("stage", ""):
-		for file in NovaTools.get_children_files_recursive(ProjectSettings.globalize_path(path)):
+		for file in NovaTools.get_children_files_recursive(NovaTools.normalize_path_absolute(path)):
 			NovaTools.callv_vcs_method("stage_file", [file])
 	
 	if preset.get_or_env("commit", ""):
