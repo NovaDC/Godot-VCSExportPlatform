@@ -1,5 +1,9 @@
 # Godot-VCSExportPlatform
 
-A simple export plugin for godot that connects the editor VCS interface to the export menu. Requires the NovaTools plugin as a dependency and some sort of VCS plugin to use in the first place.
+A simple export platform for godot that connects the builtin editor VCS interface to the export menu.
 
-The icon for this plugion is an unmodified icon taken directly form the Godot Editor. It is used under the MIT licence.
+Requires the [NovaTools](https://github.com/NovaDC/Godot-Novatools "NovaTools Github Repository") plugin as a dependency and your choice of existing VCS plugin.
+
+![The CommandExportPlugin icon](https://raw.githubusercontent.com/godotengine/godot/refs/heads/master/editor/icons/VcsBranches.svg "Icon")
+
+The icon for this plugin is an unmodified icon taken [directly from the Godot Editor](https://github.com/godotengine/godot/blob/master/editor/icons/VcsBranches.svg). It is used under the MIT licence.

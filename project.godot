@@ -15,9 +15,21 @@ compatibility/default_parent_skeleton_in_mesh_instance_3d=true
 [application]
 
 config/name="VCS Export Platform"
-config/version="1.0.0.0"
+config/description="A simple export platform for godot that connects the builtin editor VCS interface to the export menu.
+
+Requires the NovaTools plugin as a dependency and your choice of existing VCS plugin."
+config/version="v1.1.0.0"
 config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://addons/vcs_export_platform/icon.svg"
+boot_splash/image="uid://b3ivyke3xurjb"
+config/icon="uid://b3ivyke3xurjb"
+
+[autoload]
+
+TreeWatcher="*uid://byto6ql37kfie"
+
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/novatools/plugin.cfg", "res://addons/vcs_export_platform/plugin.cfg")
 
 [rendering]
 

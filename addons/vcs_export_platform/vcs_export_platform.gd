@@ -4,10 +4,12 @@ extends ToolEditorExportPlatform
 
 ## SourceEditorExportPlatform
 ##
-## A simple export plugin for godot that connects the editor VCS interface
-## to the export menu. Requires the NovaTools plugin as a dependency.
+## A simple export platform for godot that connects the builtin editor VCS interface
+## to the export menu.
+## Requires the [NovaTools] plugin as a dependency and your choice of existing VCS plugin.
+## This will silently do nothing during export if no VCS plugin is initalized.
 
-## The name of the icon for this export plugin in the editor theme,
+## The name of the icon for this export plugin in the editor's [Theme],
 ## as this plugin uses the editor theme itself instead of a local file for it's icon.
 const EDITOR_ICON_NAME := "VcsBranches"
 
