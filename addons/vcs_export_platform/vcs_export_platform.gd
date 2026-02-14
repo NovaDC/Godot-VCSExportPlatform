@@ -37,12 +37,19 @@ func _get_export_option_visibility(preset: EditorExportPreset, option: String) -
 			return true
 
 func _get_export_options():
-	var possible_remotes:Array = NovaTools.try_callv_vcs_method("get_remotes", [], [])
+	var possible_remotes = NovaTools.try_callv_vcs_method("get_remotes", [], [])
 	return [
 		{
 			"name": "branch",
 			"type": TYPE_STRING,
-			"default_value": NovaTools.try_callv_vcs_method("get_current_branch_name", [], "")
+			"default_value": NovaTools.try_callv_vcs_method("get_current_branch_name", [], ""),
+			"hint": PROPERTY_HINT_ENUM_SUGGESTION,
+			"hint_string": ",".join(NovaTools.try_callv_vcs_method("get_branch_lists", [], []))
+		},
+		{
+			"name": "create_branch",
+			"type": TYPE_BOOL,
+			"default_value": true,
 		},
 		{
 			"name": "only_if_changed",
@@ -77,7 +84,9 @@ func _get_export_options():
 		{
 			"name": "remote",
 			"type": TYPE_STRING,
-			"default_value": possible_remotes[0] if possible_remotes.size() > 0 else ""
+			"default_value": possible_remotes[0] if possible_remotes.size() > 0 else "",
+			"hint": PROPERTY_HINT_ENUM_SUGGESTION,
+			"hint_string": ",".join(possible_remotes)
 		},
 		{
 			"name": "force_push",
@@ -87,11 +96,36 @@ func _get_export_options():
 	] + super._get_export_options()
 
 func _has_valid_project_configuration(preset: EditorExportPreset):
-	return (NovaTools.vcs_active() and
-			(not preset.get_or_env("push", "") or
-			 preset.get_or_env("remote", "") in NovaTools.callv_vcs_method("get_remotes")
-			)
-		   )
+	if not NovaTools.vcs_active():
+		return false
+
+	var valid := true
+
+	if preset.get_or_env("push", ""):
+		if not preset.get_or_env("remote", "") in NovaTools.callv_vcs_method("get_remotes"):
+			add_config_error("Remote does not exist.")
+			valid = false
+
+	var original_branch := NovaTools.callv_vcs_method("get_current_branch_name")
+	var branch = preset.get_or_env("branch", "")
+	if branch != original_branch:
+		if branch not in NovaTools.callv_vcs_method("get_branch_lists"):
+			if not preset.get_or_env("create_branch", ""):
+				add_config_error("Branch does not exist, and it will not be created.")
+				valid = false
+
+	return valid
+
+func _get_export_option_warning(preset: EditorExportPreset, option: StringName) -> String:
+	var warnings := PackedStringArray()
+	var vcs_active := not NovaTools.vcs_active()
+	if not vcs_active:
+		warnings.append("VCS interface in not initalized, this export plugin will do nothing.")
+	match(option):
+		"commit", "push", "stage" when vcs_active:
+			if not (preset.get_or_env("commit", "") or preset.get_or_env("push", "") or preset.get_or_env("stage", "")):
+				warnings.append("No VCS actions are enabled. Nothing will happen to VCS at export.")
+	return "\n".join(warnings)
 
 func _export_hook(preset: EditorExportPreset, path: String):
 	if preset.get_or_env("only_if_changed", "") and not NovaTools.vcs_is_something_changed():
@@ -100,10 +134,16 @@ func _export_hook(preset: EditorExportPreset, path: String):
 	var original_branch := NovaTools.callv_vcs_method("get_current_branch_name")
 	var branch = preset.get_or_env("branch", "")
 	if branch != original_branch:
-		if branch not in NovaTools.callv_vcs_method("get_branch_lists"):
-			NovaTools.callv_vcs_method("create_branch", [branch])
+		if not preset.get_or_env("create_branch", ""):
+			if branch not in NovaTools.callv_vcs_method("get_branch_lists"):
+				NovaTools.callv_vcs_method("create_branch", [branch])
+			else:
+				return ERR_DOES_NOT_EXIST
 		NovaTools.callv_vcs_method("checkout_branch", [branch])
-	
+	original_branch = NovaTools.callv_vcs_method("get_current_branch_name")
+	if branch != original_branch:
+		return ERR_CANT_OPEN
+
 	if preset.get_or_env("stage", ""):
 		for file in NovaTools.get_children_files_recursive(ProjectSettings.globalize_path(path)):
 			NovaTools.callv_vcs_method("stage_file", [file])
