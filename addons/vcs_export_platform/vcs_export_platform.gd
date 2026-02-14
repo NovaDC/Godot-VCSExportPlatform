@@ -7,12 +7,16 @@ extends ToolEditorExportPlatform
 ## A simple export plugin for godot that connects the editor VCS interface
 ## to the export menu. Requires the NovaTools plugin as a dependency.
 
+## The name of the icon for this export plugin in the editor theme,
+## as this plugin uses the editor theme itself instead of a local file for it's icon.
+const EDITOR_ICON_NAME := "VcsBranches"
+
 func _get_name():
 	return "VCS"
 
 func _get_logo():
-	var size = Vector2i.ONE * floori(32 * EditorInterface.get_editor_scale())
-	return NovaTools.get_editor_icon_named("VcsBranches", size)
+	var size = Vector2i.ONE * 32 * roundi(maxf(EditorInterface.get_editor_scale(), 0.0))
+	return NovaTools.get_editor_icon_named(EDITOR_ICON_NAME, size)
 
 func _get_preset_features(preset:EditorExportPreset) -> PackedStringArray:
 	var feat := PackedStringArray()

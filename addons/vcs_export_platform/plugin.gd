@@ -9,7 +9,7 @@ func _get_plugin_name():
 	return PLUGIN_NAME
 
 func _get_plugin_icon():
-	return NovaTools.get_editor_icon_named("VcsBranches", Vector2i.ONE * 16)
+	return NovaTools.get_editor_icon_named(VCSEditorExportPlatform.EDITOR_ICON_NAME, Vector2i.ONE * 16)
 
 func _enter_tree():
 	if EditorInterface.is_plugin_enabled(PLUGIN_NAME):
