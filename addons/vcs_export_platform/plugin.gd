@@ -1,9 +1,23 @@
 @tool
 extends EditorPlugin
 
-const PLUGIN_NAME := "vcs_export_platform"
+const PLUGIN_NAME := "VCS Export Platform"
+
+const PLUGIN_NAME_INTERNAL := "vcs_export_platform"
+
+const ENSURE_SCRIPT_DOCS:Array[Script] = [
+    preload("./vcs_export_platform.gd")
+]
 
 var _export_platform_ref:VCSEditorExportPlatform = null
+
+# Every once ands a while the script docs simply refuse to update properly.
+# This nudges the docs into a ensuring that the important scripts added by
+# this addon are actually loaded.
+func _ensure_script_docs():
+    var edit := get_editor_interface().get_script_editor()
+    for scr in ENSURE_SCRIPT_DOCS:
+        edit.update_docs_from_script(scr)
 
 func _get_plugin_name():
 	return PLUGIN_NAME
@@ -12,11 +26,13 @@ func _get_plugin_icon():
 	return NovaTools.get_editor_icon_named(VCSEditorExportPlatform.EDITOR_ICON_NAME, Vector2i.ONE * 16)
 
 func _enter_tree():
-	if EditorInterface.is_plugin_enabled(PLUGIN_NAME):
-		_try_init_platform()
+    _ensure_script_docs()
+    if EditorInterface.is_plugin_enabled(PLUGIN_NAME_INTERNAL):
+        _try_init_platform()
 
 func _enable_plugin():
-	_try_init_platform()
+    _ensure_script_docs()
+    _try_init_platform()
 
 func _disable_plugin():
 	_try_deinit_platform()
